@@ -90,11 +90,12 @@ def message():
 #F=linspace(0.5,2.0,100)
 
 #F=0.8
-mn_n = 200
-Froude = random_floats(0.1,2.0,mn_n)
-kd = random_floats(0.1,0.9,mn_n)
-j = random_floats(0.1,6.0,mn_n)
-nt=1000
+mn_n = 100
+Froude = random_floats(0.5,1.5,mn_n)
+kd = random_floats(1.0,2.0,mn_n)
+j = random_floats(0.5,4.0,mn_n)
+dd = random_floats(5.0,12.0,mn_n)
+nt=100
 nx=500
 A_o=0.6
 #kd = 0.1
@@ -124,6 +125,7 @@ nd_y = []
 
 for kk in range(mn_n):
     F=Froude[kk]
+    depth=dd[kk]
     vel=F*sqrt(9.81*depth)
     length = 2.0*pi*depth/kd[kk]
     k =  2. * pi / length
@@ -152,12 +154,12 @@ for kk in range(mn_n):
         for ii in range(nx):
             eta[tt,ii] = -depth + a[tt] * sin(k*(x[ii]-u_b*t[tt]))
             xi[tt,ii] = sin(k*(x[ii]-u_b*t[tt]))*a[tt] / ((1.0 - tanh(k * depth)/(F**2.0*k*depth))*cosh(k *depth))
-    if a[10]/a[11]>0.95 and a[10]/a[11]<1.05:
+    if a[10] == a[11]:# and a[10]/a[11]<1.05:
         if u_b < 0.0:
-            ad_x.append(j[kk])
+            ad_x.append(dd[kk])
             ad_y.append(Froude[kk])
         if u_b > 0.0:
-            nd_x.append(j[kk])
+            nd_x.append(dd[kk])
             nd_y.append(Froude[kk])
 nd_x = array(nd_x)
 nd_y = array(nd_y)
