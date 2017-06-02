@@ -90,13 +90,13 @@ def message():
 #F=linspace(0.5,2.0,100)
 
 #F=0.8
-mn_n = 2000
+mn_n = 3000
 Froude = random_floats(0.5,2.0,mn_n)
 kd = random_floats(4.0,4.0,mn_n)
 j = random_floats(0.8,0.8,mn_n)
 dd = random_floats(2.0,2.0,mn_n)
 Froude = linspace(0.5,2.5,mn_n)
-kd = linspace(0.5,2.5,mn_n)
+kd = linspace(0.5,3.0,mn_n)
 nt=100
 nx=500
 A_o=0.6
