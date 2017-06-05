@@ -2,7 +2,15 @@ import pylab
 from pylab import *
 from numpy import *
 import matplotlib
-
+from scipy.signal import correlate
+from numpy.fft import fft, ifft, fftshift
+from scipy.interpolate import interp1d
+from scipy.optimize import leastsq
+from scipy import signal, fftpack
+#import click
+from progress.bar import Bar
+import warnings
+warnings.filterwarnings("ignore")
 ### Functions #####
 
 ####################fall velocity##################################
@@ -78,34 +86,86 @@ def random_floats(low, high, size):
     # returns an array of random numbers of size 'size' between 'low' and 'hihg'.
     return [random.uniform(low, high) for _ in xrange(size)]
 
+def stable(tt, Tb , kk, vel_e, fr,dd,de, nn):
+    term1 = tt * nn * vel_e
+    term2 = (1.0 - fr**2.0*kk*dd*tanh(kk*dd))/(fr**2.0*kk*dd - tanh(kk*dd))
+    return term1 * term2 * sin(kk*de)
+
+def cross_correlation_using_fft(x, y):
+    f1 = fft(x)
+
+    # flip the signal of y
+    f2 = fft(np.flipud(y))
+    cc = np.real(ifft(f1 * f2))
+
+    return fftshift(cc)
+
+def compute_shift(x, y):
+    # we make sure the length of the two signals are the same
+    assert len(x) == len(y)
+    c = cross_correlation_using_fft(x, y)
+    assert len(c) == len(x)
+    zero_index = int(len(x) / 2) - 1
+    shift = zero_index - np.argmax(c)
+    return shift
+
+def err_func(p):
+    return interp1d(X,Y)(X[1:-1]+p[0]) - Y_shifted[1:-1]
+def get_max_correlation(original, match):
+    z = signal.fftconvolve(original, match[::-1])
+    lags = np.arange(z.size) - (match.size - 1)
+    return ( lags[np.argmax(np.abs(z))] )
+
+
+def find_phase(arr1,arr2,locs,le):
+    nnx = len(arr1)
+    mm1 = max(arr1)
+    mm2 = max(arr2)
+    # print mm1,mm2
+    for i in range(nnx):
+        # if locs[i]>locs[10]:
+        if arr1[i] == mm1:
+            index1 = i
+            # print index1, locs[index1]
+            break
+    for i in range(nnx):
+        # if locs[i]>locs[10]:
+        if arr2[i] == mm2:
+            index2 = i
+            # print index2, locs[index2]
+            break
+    return index1,index2
+
 
 def message():
-    print " ******************"
-    print " * Simple bedform *"
-    print " *     code       *"
-    print " * Kennedy's work *"
-    print " ******************"
-
+    print
+    print "\t ******************"
+    print "\t * Simple bedform *"
+    print "\t *     code       *"
+    print "\t * Kennedy's work *"
+    print "\t ******************"
+    print
+    print
 #### Main Program ######
 #F=linspace(0.5,2.0,100)
-
+message()
 #F=0.8
-mn_n = 3000
-Froude = random_floats(0.5,2.0,mn_n)
-kd = random_floats(4.0,4.0,mn_n)
-j = random_floats(0.8,0.8,mn_n)
-dd = random_floats(2.0,2.0,mn_n)
-Froude = linspace(0.5,2.5,mn_n)
-kd = linspace(0.5,3.0,mn_n)
+mn_n = 1000000
+Froude = random_floats(0.1,2.57,mn_n)
+kd = random_floats(0.1,4.0,mn_n)
+j = random_floats(0.1,0.9,mn_n)
+dd = random_floats(1.0,1.0,mn_n)
+#Froude = linspace(0.5,2.5,mn_n)
+#kd = linspace(0.5,3.0,mn_n)
 nt=100
 nx=500
-A_o=0.6
+A_o=2.0
 #kd = 0.1
 #vel = 0.5
 dg = 1.0 * 1.0e-3
 w_s = ferg(dg)
-vel_c = usstarcr(dg)*10.0
-print "vel", vel_c
+vel_c = usstarcr(dg)*1.0
+#print "vel", vel_c
 #j = 2.0
 depth = 1.0
 
@@ -137,73 +197,98 @@ und_x = []
 und_y = []
 und_z = []
 und_v = []
+bar = Bar('Processing', max=mn_n, suffix='%(index)d/%(max)d - %(percent).1f%% - %(eta)ds')
 
-for kk1 in range(mn_n):
-    for kk2 in range(mn_n):
-        F=Froude[kk1]
-        depth=dd[kk1]
-        vel=F*sqrt(9.81*depth)
-        length = 2.0*pi*depth/kd[kk2]
-        k =  2. * pi / length
-        delta = j[kk1]* length
-        u_b = calc_u_b(vel,vel_c,F,k,depth,delta,m,n)
-        print u_b,kd[kk1],j[kk1],Froude[kk1]
+for kk in range(mn_n):
+    F=Froude[kk]
+    depth=dd[kk]
+    vel=F*sqrt(9.81*depth)
+    length = 2.0*pi*depth/kd[kk]
+    k =  2. * pi / length
+    delta = j[kk]* length
+    u_b = calc_u_b(vel,vel_c,F,k,depth,delta,m,n)
 
-        t = linspace(0,30.0,nt)
-        dt = t[1]-t[0]
-        a= zeros(nt)
-        a[0] = A_o/1.
-        for i in range(1,nt):
-            term1 = (tanh(k * depth) - (F**2. * k * depth)**(-1.)) / (1. - tanh(k *depth)/(F**2.0 * k * depth))
-            a[i]=a[i-1]- dt*(a[i-1] * calc_t_bar(vel,vel_c,m,n) * k**2.0 * vel / (vel - vel_c) *term1 * sin(k * delta))
 
-    # a =  calc_a(t,vel,vel_c,F,k,depth,delta,m,n,A_o)
-        # x = linspace(0,4.0*length,nx)
-        # eta = zeros([nt,nx])
-        # xi = zeros([nt,nx])
-        # maxeta = []
-        # maxxi = []
-        # maxdistance_eta = []
-        # maxdistance_xi = []
-        # for tt in range(nt):
-        # #print a[tt],u_b,F,k*delta,delta/depth,F**2.0*k*depth*tanh(k*depth)
-        #     for ii in range(nx):
-        #         eta[tt,ii] = -depth + a[tt] * sin(k*(x[ii]-u_b*t[tt]))
-        #         xi[tt,ii] = sin(k*(x[ii]-u_b*t[tt]))*a[tt] / ((1.0 - tanh(k * depth)/(F**2.0*k*depth))*cosh(k *depth))
-        # noinspection PyTypeChecker
-        if 0.90 < a[10]/a[70] < 1.1:
-            if u_b < 0.0:
-                sad_x.append(dd[kk1])
-                sad_y.append(Froude[kk1])
-                sad_z.append(j[kk1])
-                sad_v.append(kd[kk2])
-            if u_b >= 0.0:
-                snd_x.append(dd[kk1])
-                snd_y.append(Froude[kk1])
-                snd_z.append(j[kk1])
-                snd_v.append(kd[kk2])
-        # noinspection PyTypeChecker
-        else:
-            if u_b < 0.0:
-                uad_x.append(dd[kk1])
-                uad_y.append(Froude[kk1])
-                uad_z.append(j[kk1])
-                uad_v.append(kd[kk2])
-            if u_b >= 0.0:
-                und_x.append(dd[kk1])
-                und_y.append(Froude[kk1])
-                und_z.append(j[kk1])
-                und_v.append(kd[kk2])
+    t = linspace(0,30.0,nt)
+    dt = t[1]-t[0]
+    a= zeros(nt)
+    t1 = 1/(F**2.0 *k * depth)*cosh(k*depth) - sinh(k*depth)
+    a[0] = A_o*n*calc_t_bar(vel,vel_c,m,n)*k**2.0* vel / (vel - vel_c)*t1*sin(k*delta)
 
-und_x = array(und_x)
-und_y = array(und_y)
-und_z = array(und_z)
-und_v = array(und_v)
+    for i in range(1,nt):
+        term1 = (tanh(k * depth) - (F**2. * k * depth)**(-1.)) / (1. - tanh(k *depth)/(F**2.0 * k * depth))
+        a[i]=a[i-1]- dt*(a[i-1] * calc_t_bar(vel,vel_c,m,n) * k**2.0 * vel / (vel - vel_c) *term1 * sin(k * delta))
+    stab = stable(t[-1], calc_t_bar(vel,vel_c,m,n) , k, vel/(vel - vel_c),
+    F, depth,delta, n)
+    #print kk,u_b,k*delta,vel/(usstarcr(dg)*F), stab
+# a =  calc_a(t,vel,vel_c,F,k,depth,delta,m,n,A_o)
+    x = linspace(0,4.0*length,nx)
+    eta = zeros([nt,nx])
+    xi = zeros([nt,nx])
+    maxeta = []
+    maxxi = []
+    maxdistance_eta = []
+    maxdistance_xi = []
+    max_eta = []
+    max_xi = []
+    for tt in range(nt):
+    #print a[tt],u_b,F,k*delta,delta/depth,F**2.0*k*depth*tanh(k*depth)
+    #    for ii in range(nx):
+        eta[tt,:] = a[tt] * sin(k*(x[:]-u_b*t[tt]))
+        xi[tt,:] = sin(k*(x[:]-u_b*t[tt]))*a[tt] / ((1.0 - tanh(k * depth)/(F**2.0*k*depth))*cosh(k *depth))
+    for tt in range(nt):
+        max_eta.append(max(eta[tt,:]))
+        max_xi.append(max(xi[tt,:]))
 
-uad_x = array(uad_x)
-uad_y = array(uad_y)
-uad_z = array(uad_z)
-uad_v = array(uad_v)
+    #print len(max_eta)
+    # noinspection PyTypeChecker
+    eta_max_loc0,xi_max_loc0=find_phase(eta[0,:],xi[0,:],x,length)
+    eta_max_loc1,xi_max_loc1=find_phase(eta[1,:],xi[1,:],x,length)
+    shift1 = abs(x[eta_max_loc0] -x[xi_max_loc0])
+    shift2 = abs(x[eta_max_loc1] -x[xi_max_loc1])
+    # print 'shift', shift
+    # plot(x, eta[0,:])
+    # plot(x, xi[0,:])
+    # plot(x[eta_max_loc], eta[0,eta_max_loc],'ro')
+    # plot(x[xi_max_loc], xi[0,xi_max_loc],'ko')
+    #
+    # show()
+    if stab <= 0.0 and abs(u_b) <= abs(vel):
+#            if u_b < 0.0 and F**2.0 * k *depth  > tanh(k *depth) and F**2.0 * k *depth *tanh(k *depth)<1.0:# and delta<0.5*length:
+        if u_b < 0.0 and shift1 == 0.0 and shift1 == shift2 and max_eta[0] <= max_eta[-1]:# F**2.0 * k *depth *tanh(k *depth)>1.0:# and delta<0.5*length:
+            sad_x.append(dd[kk])
+            sad_y.append(Froude[kk])
+            sad_z.append(j[kk])
+            sad_v.append(kd[kk])
+        if u_b > 0.0 and shift1>=0.5*length and shift1 == shift2 and max_eta[0] <= max_eta[-1]:#F**2.0 *k *depth < tanh(k * depth):# and delta>=0.5*length and delta <length:
+            snd_x.append(dd[kk])
+            snd_y.append(Froude[kk])
+            snd_z.append(j[kk])
+            snd_v.append(kd[kk])
+    # noinspection PyTypeChecker
+    if stab > 0.0 and abs(u_b) <= abs(vel):
+#            if u_b < 0.0 and F**2.0 * k *depth  > tanh(k *depth) and F**2.0 * k *depth *tanh(k *depth)<1.0:# and delta < 0.5*depth:
+        if u_b < 0.0 and shift1 == 0.0 and shift1 == shift2 and max_eta[0] <= max_eta[-1]:#F**2.0 * k *depth *tanh(k *depth)<1.0:# and delta < 0.5*depth:
+            uad_x.append(dd[kk])
+            uad_y.append(Froude[kk])
+            uad_z.append(j[kk])
+            uad_v.append(kd[kk])
+        if u_b >= 0.0 and shift1>=0.5*length and shift1 == shift2 and max_eta[0]<=max_eta[-1]:#F**2.0 *k *depth < tanh(k * depth):#  and delta>=0.5*length and delta <length:
+            und_x.append(dd[kk])
+            und_y.append(Froude[kk])
+            und_z.append(j[kk])
+            und_v.append(kd[kk])
+    bar.next()
+bar.finish()
+# und_x = array(und_x)
+# und_y = array(und_y)
+# und_z = array(und_z)
+# und_v = array(und_v)
+#
+# uad_x = array(uad_x)
+# uad_y = array(uad_y)
+# uad_z = array(uad_z)
+# uad_v = array(uad_v)
 
 snd_x = array(snd_x)
 snd_y = array(snd_y)
@@ -241,6 +326,8 @@ print "Length Unstable Antidudes",len(uad_v)
 
 print 'Length Stable Dunes', len(snd_v)
 print 'Length Unstable Dunes',len(und_v)
+
+print 'Total', len(sad_v)+len(uad_v)+len(snd_v)+len(und_v)
 # for tt in range(nt):
 #     for ii in range(0,nx-2):
 #         if x[ii]>0.25*length and eta[tt,ii+1]< eta[tt,ii]:
