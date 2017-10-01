@@ -150,7 +150,7 @@ def message():
 #F=linspace(0.5,2.0,100)
 message()
 #F=0.8
-mn_n = 1000000
+mn_n = int(1e6)
 Froude = random_floats(0.1,2.57,mn_n)
 kd = random_floats(0.1,4.0,mn_n)
 j = random_floats(0.1,0.9,mn_n)
@@ -258,12 +258,12 @@ for kk in range(mn_n):
         if u_b < 0.0 and shift1 == 0.0 and shift1 == shift2 and max_eta[0] <= max_eta[-1]:# F**2.0 * k *depth *tanh(k *depth)>1.0:# and delta<0.5*length:
             sad_x.append(dd[kk])
             sad_y.append(Froude[kk])
-            sad_z.append(j[kk])
+            sad_z.append(k)
             sad_v.append(kd[kk])
         if u_b > 0.0 and shift1>=0.5*length and shift1 == shift2 and max_eta[0] <= max_eta[-1]:#F**2.0 *k *depth < tanh(k * depth):# and delta>=0.5*length and delta <length:
             snd_x.append(dd[kk])
             snd_y.append(Froude[kk])
-            snd_z.append(j[kk])
+            snd_z.append(k)
             snd_v.append(kd[kk])
     # noinspection PyTypeChecker
     if stab > 0.0 and abs(u_b) <= abs(vel):
@@ -271,12 +271,12 @@ for kk in range(mn_n):
         if u_b < 0.0 and shift1 == 0.0 and shift1 == shift2 and max_eta[0] <= max_eta[-1]:#F**2.0 * k *depth *tanh(k *depth)<1.0:# and delta < 0.5*depth:
             uad_x.append(dd[kk])
             uad_y.append(Froude[kk])
-            uad_z.append(j[kk])
+            uad_z.append(k)
             uad_v.append(kd[kk])
         if u_b >= 0.0 and shift1>=0.5*length and shift1 == shift2 and max_eta[0]<=max_eta[-1]:#F**2.0 *k *depth < tanh(k * depth):#  and delta>=0.5*length and delta <length:
             und_x.append(dd[kk])
             und_y.append(Froude[kk])
-            und_z.append(j[kk])
+            und_z.append(k)
             und_v.append(kd[kk])
     bar.next()
 bar.finish()

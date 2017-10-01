@@ -24,6 +24,22 @@ def read_data(fname):
 
 def gauss(a,b,c,xx):
     return a * exp(-(xx-b)**2. / (2.0 * c**2.0))
+matplotlib.rcParams['text.usetex'] = True
+matplotlib.rcParams['text.latex.unicode'] = True
+matplotlib.rcParams['axes.labelsize'] = 18
+matplotlib.rcParams['xtick.labelsize'] = 15
+matplotlib.rcParams['ytick.labelsize'] = 15
+matplotlib.rcParams['legend.fontsize'] = 15
+
+# params = {'backend': 'ps',
+#           'axes.labelsize': 10,
+#           'text.fontsize': 10,
+#           'legend.fontsize': 10,
+#           'xtick.labelsize': 8,
+#           'ytick.labelsize': 8,
+#           'text.usetex': True,
+#           'figure.figsize': fig_size}
+# .rcParams.update(params)
 
 fname1 = 'snorm_dunes.dat'
 fname2 = 'santi_dunes.dat'
@@ -50,25 +66,28 @@ x = linspace(0.5,3.0,100)
 # plot(x/(pi),0.55+gauss(0.65,0.,1.15,x),'k-')
 # plot(x/(pi),0.55+gauss(0.42,0.,1.18,x),'k-')
 #for i in range(len(und))
-scatter(und[:,3],und[:,1],s=2,color='yellow',alpha=1.0)
-scatter(uad[:,3],uad[:,1],s=2,color='red',alpha=0.2)
-scatter(snd[:,3],snd[:,1],s=2,color='blue',alpha=0.3)
-scatter(sad[:,3]/pi,sad[:,1],s=2,color='green',alpha=0.5)
-plot(x, sqrt(1/x),'k-')
-plot(x, sqrt((x*tanh(x))**(-1.0)),'k-')
-plot(x, sqrt(tanh(x)/x),'k-')
-xlabel(r"Water/Scour Length")
-ylabel("Froude Number")
-xlim(x[0],x[-1])
-text(1.7,1.6,"Wash out")
-text(0.75,0.6,"Ripples/Dunes", color='white')
-annotate('Transition Zone', xy=(0.3, 0.95), xytext=(0.4, 1.4),
-            arrowprops=dict(arrowstyle="->"),
-            )
+scatter(und[:,3],und[:,1],s=2,color='red',alpha=1.0,label=r'$\mathrm{Dunes}$')
+scatter(uad[:,3],uad[:,1],s=2,color='blue',alpha=0.2,label = r'$\mathrm{Antidunes}$')
+scatter(snd[:,3],snd[:,1],s=2,color='red',alpha=0.3)
+legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3,
+       ncol=2, borderaxespad=0.)
 
-annotate('Antidunes', xy=(0.6, 1.4), xytext=(0.3, 1.8),
-            arrowprops=dict(arrowstyle="->"),
-            )
+#scatter(sad[:,3]/pi,sad[:,1],s=2,color='green',alpha=0.5)
+# plot(x, sqrt(1/x),'k-')
+# plot(x, sqrt((x*tanh(x))**(-1.0)),'k-')
+# plot(x, sqrt(tanh(x)/x),'k-')
+xlabel(r"$ kd$")
+ylabel(r"$\mathrm{Froude\;Number}$")
+xlim(x[0],x[-1])
+text(2.4,2.8,r"$N=24242$",size = 20)
+# text(0.75,0.6,"Ripples/Dunes", color='white')
+# annotate('Transition Zone', xy=(0.3, 0.95), xytext=(0.4, 1.4),
+#             arrowprops=dict(arrowstyle="->"),
+#             )
+#
+# annotate('Antidunes', xy=(0.6, 1.4), xytext=(0.3, 1.8),
+#             arrowprops=dict(arrowstyle="->"),
+#             )
 savefig('PhasePlotBedforms.png',dpi=501, bbox_inches="tight")
 # plot(snd[:,3],snd[:,1],'k-')
 # plot(sad[:,3],sad[:,1],'k-')
