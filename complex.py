@@ -188,7 +188,7 @@ if str(args.mode) == 'p':
 if mode == 'd':
     message()
 #F=0.8
-mn_n = int(2e4)
+mn_n = int(1e4)
 Froude = random_floats(0.1,5.57,mn_n)
 kd = random_floats(0.1,4.0,mn_n)
 j = random_floats(0.1,0.9,mn_n)
