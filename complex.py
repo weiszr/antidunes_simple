@@ -9,7 +9,7 @@ from scipy.optimize import leastsq
 from scipy import signal, fftpack
 #import click
 import argparse
-from progress.bar import Bar
+
 import warnings
 warnings.filterwarnings("ignore")
 ### Functions #####
@@ -160,6 +160,7 @@ args = parser.parse_args()
 
 
 if str(args.mode) == 'd':
+    from progress.bar import Bar
 #    message()
     mode=str(args.mode)
 if str(args.mode) == 'p':
