@@ -26,10 +26,10 @@ def plot_data(save_fig,plot_density):
     matplotlib.rcParams['xtick.labelsize'] = 15
     matplotlib.rcParams['ytick.labelsize'] = 15
     matplotlib.rcParams['legend.fontsize'] = 15
-    nx = 50
-    ny = 50
+    nx = 150
+    ny = 150
     x = linspace(0.1, 3.0,nx)
-    y = linspace(0.1,2.5,ny)
+    y = linspace(0.1,5.5,ny)
     plt.figure(3,figsize = (10,5))
     delta_s = 11.0
     flow_depth = linspace(0.5,10,nx)
@@ -41,27 +41,31 @@ def plot_data(save_fig,plot_density):
     v_antidune_h =[]
     for i in range(nx):
         fd_index = find_velo(flow_depth[i],x*fac3)
-        v_dune.append(sqrt(tanh(x[fd_index])/x[fd_index])*sqrt(9.81*x[fd_index]*fac3))
-        v_antidune_l.append(sqrt(1/x[fd_index])*sqrt(9.81*x[fd_index]*fac3))
-        v_antidune_h.append((sqrt(fac1*x[fd_index]* tanh(fac2*x[fd_index]))**(-1.0)-0.04)*sqrt(9.81*x[fd_index]*fac3))
-        # v_dune.append(sqrt(tanh(x[fd_index])/x[fd_index]))
-        # v_antidune_l.append(sqrt(1/x[fd_index]))
-        # v_antidune_h.append((sqrt(fac1*x[fd_index]* tanh(fac2*x[fd_index]))**(-1.0)-0.04))
+        # v_dune.append(sqrt(tanh(x[fd_index])/x[fd_index])*sqrt(9.81*x[fd_index]*fac3))
+        # v_antidune_l.append(sqrt(1/x[fd_index])*sqrt(9.81*x[fd_index]*fac3))
+        # v_antidune_h.append((sqrt(fac1*x[fd_index]* tanh(fac2*x[fd_index]))**(-1.0)-0.04)*sqrt(9.81*x[fd_index]*fac3))
+        v_dune.append(sqrt(tanh(x[fd_index])/x[fd_index]))
+        v_antidune_l.append(sqrt(1/x[fd_index]))
+        v_antidune_h.append((sqrt(fac1*x[fd_index]* tanh(fac2*x[fd_index]))**(-1.0)-0.04))
 
 
     if plot_density == 1:
         dens1, dens1 = read_density(x,y)
         cmap = plt.get_cmap("Blues")
-        plt.pcolor(flow_depth,v_antidune_h,dens1,cmap=cmap)
-        plt.plot(x,(sqrt(fac1*x* tanh(fac2*x))**(-1.0)-0.04)*sqrt(9.81*x*fac3),'k-')
-        plt.plot(x, sqrt(tanh(x)/x)*sqrt(9.81*x*fac3),'k-')
-        plt.plot(x, sqrt(1/x)*sqrt(9.81*x*fac3),'k-')
-    plt.plot(flow_depth,v_dune,'b-',alpha=0.5)
-    plt.plot(flow_depth,v_antidune_l,'r-',alpha=0.5)
-    plt.plot(flow_depth,v_antidune_h,'r-',alpha = 0.5)
-    # plt.plot(x,v_dune,'b-',alpha=0.5)
-    # plt.plot(x,v_antidune_l,'r-',alpha=0.5)
-    # plt.plot(x,v_antidune_h,'r-',alpha = 0.5)
+        plt.pcolor(x,y,dens1.T,cmap=cmap)
+        plt.plot(x,(sqrt(fac1*x* tanh(fac2*x))**(-1.0)-0.04),'k-')
+        plt.plot(x, sqrt(tanh(x)/x),'k-')
+        plt.plot(x, sqrt(1/x),'k-')
+        # plt.pcolor(x,y,dens1.T,cmap=cmap)
+        # plt.plot(x,(sqrt(fac1*x* tanh(fac2*x))**(-1.0)-0.04)*sqrt(9.81*x*fac3),'k-')
+        # plt.plot(x, sqrt(tanh(x)/x)*sqrt(9.81*x*fac3),'k-')
+        # plt.plot(x, sqrt(1/x)*sqrt(9.81*x*fac3),'k-')
+    # plt.plot(flow_depth,v_dune,'b-',alpha=0.5)
+    # plt.plot(flow_depth,v_antidune_l,'r-',alpha=0.5)
+    # plt.plot(flow_depth,v_antidune_h,'r-',alpha = 0.5)
+    plt.plot(x,v_dune,'b-',alpha=0.5)
+    plt.plot(x,v_antidune_l,'r-',alpha=0.5)
+    plt.plot(x,v_antidune_h,'r-',alpha = 0.5)
     # plt.fill_between(flow_depth, v_antidune_l,v_antidune_h,color='r',alpha=0.5)
     # plt.fill_between(flow_depth, 0,v_dune,color='b',alpha=0.5)
     # plt.xlim(0.5,5.0)
@@ -81,7 +85,7 @@ def plot_data(save_fig,plot_density):
 
 def read_density(x,y):
     from progress.bar import Bar
-    from numpy import zeros
+    from numpy import zeros,amax
     import numpy.ma as ma
     fname1 = 'snorm_dunes.dat'
     fname2 = 'santi_dunes.dat'
@@ -145,8 +149,12 @@ def read_density(x,y):
             density4[i,j] = m4
             bar.next()
     bar.finish()
-    density1[density1<0.5] = 'NaN'
+    print amax(density1)
+    density1 = density1/amax(density1)
+    print amax(density1)
+    density1[density1<0.1] = 'NaN'
     density1 = ma.masked_invalid(density1)
-    density4[density4<0.5] = 'NaN'
+    density4 = density4/amax(density4)
+    density4[density4<0.1] = 'NaN'
     density4 = ma.masked_invalid(density4)
     return density1, density4

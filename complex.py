@@ -150,8 +150,8 @@ def message():
 #F=linspace(0.5,2.0,100)
 message()
 #F=0.8
-mn_n = int(1e6)
-Froude = random_floats(0.1,2.57,mn_n)
+mn_n = int(2e6)
+Froude = random_floats(0.1,5.57,mn_n)
 kd = random_floats(0.1,4.0,mn_n)
 j = random_floats(0.1,0.9,mn_n)
 dd = random_floats(1.0,1.0,mn_n)
@@ -162,7 +162,7 @@ nx=500
 A_o=2.0
 #kd = 0.1
 #vel = 0.5
-dg = 1.0 * 1.0e-3
+dg = 0.25 * 1.0e-3
 w_s = ferg(dg)
 vel_c = usstarcr(dg)*1.0
 #print "vel", vel_c
