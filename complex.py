@@ -8,6 +8,7 @@ from scipy.interpolate import interp1d
 from scipy.optimize import leastsq
 from scipy import signal, fftpack
 #import click
+import argparse
 from progress.bar import Bar
 import warnings
 warnings.filterwarnings("ignore")
@@ -148,13 +149,49 @@ def message():
     print
 #### Main Program ######
 #F=linspace(0.5,2.0,100)
-message()
+
+parser =  argparse.ArgumentParser(description='Options to run the antidune model')
+parser.add_argument('-m','--mode', help='Mode: d-Development,p-Production',required=True)
+#parser.add_argument('-p','--processors',help='# number of processors',required=False)
+args = parser.parse_args()
+
+# if str(args.processors) != 'None':
+#     nprocess=int(args.processors)
+
+
+if str(args.mode) == 'd':
+#    message()
+    mode=str(args.mode)
+if str(args.mode) == 'p':
+    mode = str(args.mode)
+
+# if mode == 'p':
+#     prodfile=open('runinfo.txt','w')
+#     prodfile.write('Mode = Production \n')
+#     prodfile.write('Number of processors = {test1:d} \n'.format(test1=nprocess))
+#     prodfile.write('Number of grains = {test1:d} \n'.format(test1=num_mc))
+#     prodfile.write('Grain size (phi) = {test1:3.2f} ({test2:4.2f} mm) \n'.format(test1=dg,test2=2.0**-dg))
+#     prodfile.write('Shear stress factor = {test1:3.1f} \n'.format(test1=n_factor))
+#
+# if mode == 'd':
+#     print('Mode = Development')
+#     print('Number of processors = {test1:d}'.format(test1=nprocess))
+#     print('Number of grains = {test1:d}'.format(test1=num_mc))
+#     print('Shear stress factor = {test1:3.1f} \n'.format(test1=n_factor))
+#     print('Grain size (phi) = {test1:3.2f} ({test2:4.2f} mm) \n'.format(test1=dg,test2=2.0**-dg))
+#     print('Starting...\n')
+#
+
+
+
+if mode == 'd':
+    message()
 #F=0.8
-mn_n = int(2e6)
+mn_n = int(2e4)
 Froude = random_floats(0.1,5.57,mn_n)
 kd = random_floats(0.1,4.0,mn_n)
 j = random_floats(0.1,0.9,mn_n)
-dd = random_floats(1.0,1.0,mn_n)
+dd = random_floats(0.5,5.0,mn_n)
 #Froude = linspace(0.5,2.5,mn_n)
 #kd = linspace(0.5,3.0,mn_n)
 nt=100
@@ -197,7 +234,8 @@ und_x = []
 und_y = []
 und_z = []
 und_v = []
-bar = Bar('Processing', max=mn_n, suffix='%(index)d/%(max)d - %(percent).1f%% - %(eta)ds')
+if mode == 'd':
+    bar = Bar('Processing', max=mn_n, suffix='%(index)d/%(max)d - %(percent).1f%% - %(eta)ds')
 
 for kk in range(mn_n):
     F=Froude[kk]
@@ -278,8 +316,10 @@ for kk in range(mn_n):
             und_y.append(Froude[kk])
             und_z.append(k)
             und_v.append(kd[kk])
-    bar.next()
-bar.finish()
+    if mode == 'd':
+        bar.next()
+if mode == 'd':
+    bar.finish()
 # und_x = array(und_x)
 # und_y = array(und_y)
 # und_z = array(und_z)
@@ -321,13 +361,14 @@ outfile2.close()
 outfile3.close()
 outfile4.close()
 
-print 'Length Stable Antidune', len(sad_v)
-print "Length Unstable Antidudes",len(uad_v)
+if mode == 'd':
+    print 'Length Stable Antidune', len(sad_v)
+    print "Length Unstable Antidudes",len(uad_v)
 
-print 'Length Stable Dunes', len(snd_v)
-print 'Length Unstable Dunes',len(und_v)
+    print 'Length Stable Dunes', len(snd_v)
+    print 'Length Unstable Dunes',len(und_v)
 
-print 'Total', len(sad_v)+len(uad_v)+len(snd_v)+len(und_v)
+    print 'Total', len(sad_v)+len(uad_v)+len(snd_v)+len(und_v)
 # for tt in range(nt):
 #     for ii in range(0,nx-2):
 #         if x[ii]>0.25*length and eta[tt,ii+1]< eta[tt,ii]:
