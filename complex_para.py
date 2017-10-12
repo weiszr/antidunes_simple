@@ -7,15 +7,20 @@ def main():
     print
     print
     nprocess = 1
+    nn = 1e3
     parser =  argparse.ArgumentParser(description='Options to run the antidune model')
     parser.add_argument('-m','--mode', help='Mode: d-Development,p-Production',required=True)
+    parser.add_argument('-s','--sample',help='M-C Sample size',required=False)
     parser.add_argument('-p','--processors',help='# number of processors',required=False)
     args = parser.parse_args()
 
     if str(args.processors) != 'None':
         nprocess=int(args.processors)
 
-    mc_n = int(1e4)
+    if str(args.sample) != 'None':
+        nn=int(args.sample)
+
+    mc_n = int(nn)
     if str(args.mode) == 'd':
         from progress.bar import Bar
         message()

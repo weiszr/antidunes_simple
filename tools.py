@@ -26,8 +26,8 @@ def plot_data(save_fig,plot_density):
     matplotlib.rcParams['xtick.labelsize'] = 15
     matplotlib.rcParams['ytick.labelsize'] = 15
     matplotlib.rcParams['legend.fontsize'] = 15
-    nx = 150
-    ny = 150
+    nx = 50
+    ny = 50
     x = linspace(0.1, 3.0,nx)
     y = linspace(0.1,5.5,ny)
     plt.figure(3,figsize = (10,5))
