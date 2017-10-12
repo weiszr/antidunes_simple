@@ -38,4 +38,6 @@ def main():
 
 
 if __name__ == '__main__':
+	print "changed some thing"
+	print "even more"
     main()
