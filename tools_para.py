@@ -152,32 +152,6 @@ def message():
     print
     print
     print
-#### Main Pr
-
-
-
-
-
-#F=linspace(0.5,2.0,100)
-
-
-
-# if mode == 'p':
-#     prodfile=open('runinfo.txt','w')
-#     prodfile.write('Mode = Production \n')
-#     prodfile.write('Number of processors = {test1:d} \n'.format(test1=nprocess))
-#     prodfile.write('Number of grains = {test1:d} \n'.format(test1=num_mc))
-#     prodfile.write('Grain size (phi) = {test1:3.2f} ({test2:4.2f} mm) \n'.format(test1=dg,test2=2.0**-dg))
-#     prodfile.write('Shear stress factor = {test1:3.1f} \n'.format(test1=n_factor))
-#
-# if mode == 'd':
-#     print('Mode = Development')
-#     print('Number of processors = {test1:d}'.format(test1=nprocess))
-#     print('Number of grains = {test1:d}'.format(test1=num_mc))
-#     print('Shear stress factor = {test1:3.1f} \n'.format(test1=n_factor))
-#     print('Grain size (phi) = {test1:3.2f} ({test2:4.2f} mm) \n'.format(test1=dg,test2=2.0**-dg))
-#     print('Starting...\n')
-#
 
 
 def load_model(mn_n,nprocess):
@@ -193,19 +167,13 @@ def load_model(mn_n,nprocess):
     kd = random_floats(0.1,4.0,mn_n)
     j = random_floats(0.1,0.9,mn_n)
     dd = random_floats(0.5,5.0,mn_n)
-
-    #Froude = linspace(0.5,2.5,mn_n)
-    #kd = linspace(0.5,3.0,mn_n)
     nt=100
     nx=500
     A_o=2.0
-    #kd = 0.1
-    #vel = 0.5
-    dg = 0.25 * 1.0e-3
+    dg = 1.25 * 1.0e-3
     w_s = ferg(dg)
     vel_c = usstarcr(dg)*1.0
-    #print "vel", vel_c
-    #j = 2.0
+
     depth = 1.0
     m = 0.5
     n = 2.64
@@ -227,7 +195,7 @@ def load_model(mn_n,nprocess):
     und_z = []
     und_v = []
 
-    pool = Pool(processes=nprocess)              # start 4 worker processes
+    pool = Pool(processes=nprocess)
     inputs = range(mn_n)
     result1 = pool.map(func1, inputs)
     pool.close()
@@ -321,20 +289,16 @@ def func1(kk):
     k =  2. * pi / length
     delta = j[kk]* length
     u_b = calc_u_b(vel,vel_c,F,k,depth,delta,m,n)
-
-
     t = linspace(0,30.0,nt)
     dt = t[1]-t[0]
     a= zeros(nt)
     t1 = 1/(F**2.0 *k * depth)*cosh(k*depth) - sinh(k*depth)
     a[0] = A_o*n*calc_t_bar(vel,vel_c,m,n)*k**2.0* vel / (vel - vel_c)*t1*sin(k*delta)
-
     for i in range(1,nt):
         term1 = (tanh(k * depth) - (F**2. * k * depth)**(-1.)) / (1. - tanh(k *depth)/(F**2.0 * k * depth))
         a[i]=a[i-1]- dt*(a[i-1] * calc_t_bar(vel,vel_c,m,n) * k**2.0 * vel / (vel - vel_c) *term1 * sin(k * delta))
     stab = stable(t[-1], calc_t_bar(vel,vel_c,m,n) , k, vel/(vel - vel_c),
     F, depth,delta, n)
-    #print kk,u_b,k*delta,vel/(usstarcr(dg)*F), stab
 # a =  calc_a(t,vel,vel_c,F,k,depth,delta,m,n,A_o)
     x = linspace(0,4.0*length,nx)
     eta = zeros([nt,nx])
@@ -346,56 +310,27 @@ def func1(kk):
     max_eta = []
     max_xi = []
     for tt in range(nt):
-    #print a[tt],u_b,F,k*delta,delta/depth,F**2.0*k*depth*tanh(k*depth)
-    #    for ii in range(nx):
         eta[tt,:] = a[tt] * sin(k*(x[:]-u_b*t[tt]))
         xi[tt,:] = sin(k*(x[:]-u_b*t[tt]))*a[tt] / ((1.0 - tanh(k * depth)/(F**2.0*k*depth))*cosh(k *depth))
     for tt in range(nt):
         max_eta.append(max(eta[tt,:]))
         max_xi.append(max(xi[tt,:]))
-
-    #print len(max_eta)
-    # noinspection PyTypeChecker
     eta_max_loc0,xi_max_loc0=find_phase(eta[0,:],xi[0,:],x,length)
     eta_max_loc1,xi_max_loc1=find_phase(eta[1,:],xi[1,:],x,length)
     shift1 = abs(x[eta_max_loc0] -x[xi_max_loc0])
     shift2 = abs(x[eta_max_loc1] -x[xi_max_loc1])
-    # print 'shift', shift
-    # plot(x, eta[0,:])
-    # plot(x, xi[0,:])
-    # plot(x[eta_max_loc], eta[0,eta_max_loc],'ro')
-    # plot(x[xi_max_loc], xi[0,xi_max_loc],'ko')
-    #
-    # show()
     if stab <= 0.0 and abs(u_b) <= abs(vel):
 #            if u_b < 0.0 and F**2.0 * k *depth  > tanh(k *depth) and F**2.0 * k *depth *tanh(k *depth)<1.0:# and delta<0.5*length:
         if u_b < 0.0 and shift1 == 0.0 and shift1 == shift2 and max_eta[0] <= max_eta[-1]:# F**2.0 * k *depth *tanh(k *depth)>1.0:# and delta<0.5*length:
             res = 1
-            # sad_x.append(dd[kk])
-            # sad_y.append(Froude[kk])
-            # sad_z.append(k)
-            # sad_v.append(kd[kk])
         if u_b > 0.0 and shift1>=0.5*length and shift1 == shift2 and max_eta[0] <= max_eta[-1]:#F**2.0 *k *depth < tanh(k * depth):# and delta>=0.5*length and delta <length:
             res = 2
-            # snd_x.append(dd[kk])
-            # snd_y.append(Froude[kk])
-            # snd_z.append(k)
-            # snd_v.append(kd[kk])
-    # noinspection PyTypeChecker
     if stab > 0.0 and abs(u_b) <= abs(vel):
 #            if u_b < 0.0 and F**2.0 * k *depth  > tanh(k *depth) and F**2.0 * k *depth *tanh(k *depth)<1.0:# and delta < 0.5*depth:
         if u_b < 0.0 and shift1 == 0.0 and shift1 == shift2 and max_eta[0] <= max_eta[-1]:#F**2.0 * k *depth *tanh(k *depth)<1.0:# and delta < 0.5*depth:
             res = 3
-            # uad_x.append(dd[kk])
-            # uad_y.append(Froude[kk])
-            # uad_z.append(k)
-            # uad_v.append(kd[kk])
         if u_b >= 0.0 and shift1>=0.5*length and shift1 == shift2 and max_eta[0]<=max_eta[-1]:#F**2.0 *k *depth < tanh(k * depth):#  and delta>=0.5*length and delta <length:
             res = 4
-            # und_x.append(dd[kk])
-            # und_y.append(Froude[kk])
-            # und_z.append(k)
-            # und_v.append(kd[kk])
     return res
 
 def default():
