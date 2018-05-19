@@ -85,7 +85,7 @@ def calc_a(t1,u1,u1_c,F1,k1,depth1,delta1,m1,n1,A1_o):
 
 def random_floats(low, high, size):
     # returns an array of random numbers of size 'size' between 'low' and 'hihg'.
-    return [random.uniform(low, high) for _ in xrange(size)]
+    return [random.uniform(low, high) for _ in range(size)]
 
 def stable(tt, Tb , kk, vel_e, fr,dd,de, nn):
     term1 = tt * nn * vel_e
@@ -139,19 +139,19 @@ def find_phase(arr1,arr2,locs,le):
 
 
 def message():
-    print
-    print "\t **************************************"
-    print "\t * \t  \033[1m Creating bed forms \033[0m        *"
-    print "\t *          Monte Carlo code          *"
-    print "\t *   Based on work from J.F. Kennedy  *"
-    print "\t *    Copyright and License to        *"
-    print "\t *  CoastalHazards@VT (Robert Weiss)  *"
-    print "\t *                                    *"
-    print "\t *          \033[1mDeveloper Mode \033[0m           * "
-    print "\t **************************************"
-    print
-    print
-    print
+    print()
+    print("\t **************************************")
+    print("\t * \t  \033[1m Creating bed forms \033[0m        *")
+    print("\t *          Monte Carlo code          *")
+    print("\t *   Based on work from J.F. Kennedy  *")
+    print("\t *    Copyright and License to        *")
+    print("\t *  CoastalHazards@VT (Robert Weiss)  *")
+    print("\t *                                    *")
+    print("\t *          \033[1mDeveloper Mode \033[0m           * ")
+    print("\t **************************************")
+    print()
+    print()
+    print()
 
 
 def load_model(mn_n,nprocess):
@@ -201,7 +201,7 @@ def load_model(mn_n,nprocess):
     pool.close()
     pool.terminate()
     array_n = len(result1)
-    print len(result1),array_n
+    print(len(result1),array_n)
 
     for array_i in range(array_n):
         if result1[array_i] == 1:
@@ -271,14 +271,14 @@ def analyze_results(array):
             uad_value += 1
         if array[array_i] == 4:
             und_value += 1
-    print 'Length Stable Antidune', sad_value
-    print "Length Unstable Antidudes", uad_value
+    print('Length Stable Antidune', sad_value)
+    print("Length Unstable Antidudes", uad_value)
 
-    print 'Length Stable Dunes', snd_value
-    print 'Length Unstable Dunes', und_value
+    print('Length Stable Dunes', snd_value)
+    print('Length Unstable Dunes', und_value)
 
-    print 'Total', sad_value+uad_value+snd_value+und_value
-    print sad_value, snd_value,uad_value,und_value
+    print('Total', sad_value+uad_value+snd_value+und_value)
+    print(sad_value, snd_value,uad_value,und_value)
 
 def func1(kk):
     res = 0
@@ -476,10 +476,10 @@ def default():
     outfile4.close()
 
     if mode == 'd':
-        print 'Length Stable Antidune', len(sad_v)
-        print "Length Unstable Antidudes",len(uad_v)
+        print('Length Stable Antidune', len(sad_v))
+        print("Length Unstable Antidudes",len(uad_v))
 
-        print 'Length Stable Dunes', len(snd_v)
-        print 'Length Unstable Dunes',len(und_v)
+        print('Length Stable Dunes', len(snd_v))
+        print('Length Unstable Dunes',len(und_v))
 
-        print 'Total', len(sad_v)+len(uad_v)+len(snd_v)+len(und_v)
+        print('Total', len(sad_v)+len(uad_v)+len(snd_v)+len(und_v))

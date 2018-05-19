@@ -25,8 +25,8 @@ def main():
         from progress.bar import Bar
         message()
         mode=str(args.mode)
-        print "Number of processors: \t\t\t{t1:3d}".format(t1=nprocess)
-        print "Sample size for M-C simulations:  {t2:9d}".format(t2=mc_n)
+        print("Number of processors: \t\t\t{t1:3d}".format(t1=nprocess))
+        print("Sample size for M-C simulations:  {t2:9d}".format(t2=mc_n))
     if str(args.mode) == 'p':
         mode = str(args.mode)
     start_time = timeit.default_timer()
@@ -38,10 +38,9 @@ def main():
     # FIXME: afjdkajfa fjljk
     #plot_data(save_fig=0,plot_density=1)
     print
-    print "\t\t     \033[1m D O N E !\033[0m"
+    print("\t\t     \033[1m D O N E !\033[0m")
 
 
 
 if __name__ == '__main__':
-	print "more changes"
     main()
