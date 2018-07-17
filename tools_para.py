@@ -157,7 +157,8 @@ def message():
 def load_model(mn_n,nprocess):
     import multiprocessing
     from multiprocessing import Pool
-    from numpy import array, loadtxt
+    from numpy import array, loadtxt,concatenate
+    import tqdm
     global Froude
     global kd
     global j
@@ -194,10 +195,16 @@ def load_model(mn_n,nprocess):
     und_y = []
     und_z = []
     und_v = []
-
+    result1=[]
     pool = Pool(processes=nprocess)
     inputs = range(mn_n)
-    result1 = pool.map(func1, inputs)
+    for dummy in tqdm.tqdm(pool.imap_unordered(func1, inputs), total=mn_n):
+        result1.append(dummy)
+        #print(shape(dummy))
+        #result1= concatenate([result1,dummy])
+        pass
+    print(shape(result1))
+#     result1 = pool.map(func1, inputs)
     pool.close()
     pool.terminate()
     array_n = len(result1)

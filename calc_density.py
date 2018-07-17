@@ -236,7 +236,7 @@ density4 = zeros(density4)
 # show()
 
 figure(3,figsize = (10,5))
-delta_s = 11.0
+delta_s = 30.0
 flow_depth = linspace(0.5,10,100)
 
 fac1 = 0.9
@@ -287,5 +287,5 @@ text(0.6,8.0,r'$\textrm{Antidunes}$', size=20)
 # #fd = u / sqrt(g h) -> u = fd * sqrt(g h)
 # xlim(0.0,5)
 # ylim(0.1,2.5)
-savefig('flowspeed.png',dpi=501, bbox_inches="tight")
+#savefig('flowspeed.png',dpi=501, bbox_inches="tight")
 show()
